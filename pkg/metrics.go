@@ -1,9 +1,10 @@
 package pkg
 
 import (
-	"github.com/marpaia/graphite-golang"
 	"log"
 	"time"
+
+	"github.com/marpaia/graphite-golang"
 )
 
 type Metrics struct {
