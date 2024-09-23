@@ -3,6 +3,7 @@ package pkg
 import (
 	"github.com/marpaia/graphite-golang"
 	"log"
+	"time"
 )
 
 type Metrics struct {
@@ -21,6 +22,14 @@ func (m *Metrics) Test() {
 	log.Println("Test. Metric works")
 }
 
-func (m *Metrics) Close() {
+func (m *Metrics) Increment(name string) {
+	_ = m.g.SendMetric(graphite.Metric{
+		Name:      name,
+		Value:     "1",
+		Timestamp: time.Now().Unix(),
+	})
+}
+
+func (m *Metrics) Disconnect() {
 	_ = m.g.Disconnect()
 }
