@@ -26,16 +26,16 @@ func NewMetrics(host string, port int, service string, env string) (*Metrics, er
 
 func (m *Metrics) Increment(name string) {
 	_ = m.g.SendMetric(graphite.Metric{
-		Name:      m.prefix + name,
+		Name:      m.prefix + name + ".count",
 		Value:     "1",
 		Timestamp: time.Now().Unix(),
 	})
 }
 
-func (m *Metrics) Duration(timestamp float64, name string) {
+func (m *Metrics) Duration(timestamp int64, name string) {
 	_ = m.g.SendMetric(graphite.Metric{
-		Name:      name,
-		Value:     fmt.Sprintf("%.2f", timestamp),
+		Name:      name + ".duration",
+		Value:     fmt.Sprintf("%d", timestamp),
 		Timestamp: time.Now().Unix(),
 	})
 }
