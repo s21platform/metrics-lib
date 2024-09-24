@@ -1,34 +1,59 @@
 package pkg
 
 import (
-	"log"
+	"context"
+	"fmt"
 	"time"
 
 	"github.com/marpaia/graphite-golang"
 )
 
 type Metrics struct {
-	g *graphite.Graphite
+	g      *graphite.Graphite
+	prefix string
 }
 
-func NewMetrics(host string, port int) (*Metrics, error) {
+func NewMetrics(host string, port int, service string, env string) (*Metrics, error) {
 	g, err := graphite.NewGraphite(host, port)
 	if err != nil {
 		return nil, err
 	}
-	return &Metrics{g: g}, nil
-}
-
-func (m *Metrics) Test() {
-	log.Println("Test. Metric works")
+	return &Metrics{
+		g:      g,
+		prefix: fmt.Sprintf("%s.%s.", env, service),
+	}, nil
 }
 
 func (m *Metrics) Increment(name string) {
 	_ = m.g.SendMetric(graphite.Metric{
-		Name:      name,
+		Name:      m.prefix + name,
 		Value:     "1",
 		Timestamp: time.Now().Unix(),
 	})
+}
+
+func (m *Metrics) Duration(timestamp float64, name string) {
+	_ = m.g.SendMetric(graphite.Metric{
+		Name:      name,
+		Value:     fmt.Sprintf("%.2f", timestamp),
+		Timestamp: time.Now().Unix(),
+	})
+}
+
+func FromContext(ctx context.Context) *Metrics {
+	value := ctx.Value("metrics")
+	if value == nil {
+		// Обрабатываем ситуацию, когда значение отсутствует в контексте
+		return nil
+	}
+
+	metrics, ok := value.(*Metrics)
+	if !ok {
+		// Обрабатываем ситуацию, когда значение есть, но неверного типа
+		return nil
+	}
+
+	return metrics
 }
 
 func (m *Metrics) Disconnect() {
