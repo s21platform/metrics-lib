@@ -20,7 +20,7 @@ func NewMetrics(host string, port int, service string, env string) (*Metrics, er
 	}
 	return &Metrics{
 		g:      g,
-		prefix: fmt.Sprintf("%s.%s.", env, service),
+		prefix: fmt.Sprintf("%s.%s.", service, env),
 	}, nil
 }
 
