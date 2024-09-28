@@ -34,7 +34,7 @@ func (m *Metrics) Increment(name string) {
 
 func (m *Metrics) Duration(timestamp int64, name string) {
 	_ = m.g.SendMetric(graphite.Metric{
-		Name:      name + ".duration",
+		Name:      m.prefix + name + ".duration",
 		Value:     fmt.Sprintf("%d", timestamp),
 		Timestamp: time.Now().Unix(),
 	})
