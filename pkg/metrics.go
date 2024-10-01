@@ -40,8 +40,8 @@ func (m *Metrics) Duration(timestamp int64, name string) {
 	})
 }
 
-func FromContext(ctx context.Context) *Metrics {
-	value := ctx.Value("metrics")
+func FromContext(ctx context.Context, name interface{}) *Metrics {
+	value := ctx.Value(name)
 	if value == nil {
 		// Обрабатываем ситуацию, когда значение отсутствует в контексте
 		return nil
