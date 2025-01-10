@@ -3,41 +3,40 @@ package pkg
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/marpaia/graphite-golang"
+	"github.com/alexcesaro/statsd"
 )
 
 type Metrics struct {
-	g      *graphite.Graphite
+	s      *statsd.Client
 	prefix string
 }
 
 func NewMetrics(host string, port int, service string, env string) (*Metrics, error) {
-	g, err := graphite.NewGraphite(host, port)
+	s, err := statsd.New(statsd.Address(fmt.Sprintf("%s:%d", host, port)), statsd.Prefix(fmt.Sprintf("%s.%s.", service, env)))
 	if err != nil {
 		return nil, err
 	}
 	return &Metrics{
-		g:      g,
+		s:      s,
 		prefix: fmt.Sprintf("%s.%s.", service, env),
 	}, nil
 }
 
 func (m *Metrics) Increment(name string) {
-	_ = m.g.SendMetric(graphite.Metric{
-		Name:      m.prefix + name + ".count",
-		Value:     "1",
-		Timestamp: time.Now().Unix(),
-	})
+	m.s.Increment(m.prefix + name)
+}
+
+func (m *Metrics) Gauge(name string, value float64) {
+	m.s.Gauge(m.prefix+name, value)
+}
+
+func (m *Metrics) Count(name string, value int64) {
+	m.s.Count(m.prefix+name, value)
 }
 
 func (m *Metrics) Duration(timestamp int64, name string) {
-	_ = m.g.SendMetric(graphite.Metric{
-		Name:      m.prefix + name + ".duration",
-		Value:     fmt.Sprintf("%d", timestamp),
-		Timestamp: time.Now().Unix(),
-	})
+	m.s.Timing(m.prefix+name+".duration", float64(timestamp))
 }
 
 func FromContext(ctx context.Context, name interface{}) *Metrics {
@@ -57,5 +56,5 @@ func FromContext(ctx context.Context, name interface{}) *Metrics {
 }
 
 func (m *Metrics) Disconnect() {
-	_ = m.g.Disconnect()
+	m.s.Close()
 }
