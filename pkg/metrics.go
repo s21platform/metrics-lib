@@ -13,7 +13,7 @@ type Metrics struct {
 }
 
 func NewMetrics(host string, port int, service string, env string) (*Metrics, error) {
-	s, err := statsd.New(statsd.Address(fmt.Sprintf("%s:%d", host, port)), statsd.Prefix(fmt.Sprintf("%s.%s.", service, env)))
+	s, err := statsd.New(statsd.Address(fmt.Sprintf("%s:%d", host, port)))
 	if err != nil {
 		return nil, err
 	}
