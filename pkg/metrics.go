@@ -36,17 +36,17 @@ func (m *Metrics) Count(name string, value int64) {
 }
 
 func (m *Metrics) Duration(timestamp int64, name string) {
-	m.s.Timing(m.prefix+name+".duration", float64(timestamp))
+	m.s.Timing(m.prefix+name+".duration", timestamp)
 }
 
-func FromContext(ctx context.Context, name interface{}) *Metrics {
+func FromContext(ctx context.Context, name interface{}) MetricInterface {
 	value := ctx.Value(name)
 	if value == nil {
 		// Обрабатываем ситуацию, когда значение отсутствует в контексте
 		return nil
 	}
 
-	metrics, ok := value.(*Metrics)
+	metrics, ok := value.(MetricInterface)
 	if !ok {
 		// Обрабатываем ситуацию, когда значение есть, но неверного типа
 		return nil
